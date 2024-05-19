@@ -1,0 +1,399 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+struct User{
+    char username[100];
+    char password[100];
+    struct User *next;
+}*user;
+typedef struct User User;
+
+struct item{
+    int item_no;
+    char name[100];
+    int price;
+    int quantity;
+    struct item *next;
+};
+typedef struct item item;
+
+
+static char username[100];
+static char password[100];
+
+
+void read_items(const char *filename, item **items, int *num_items) {
+    FILE *file = fopen("Products.txt", "r");
+    if (!file) {
+        perror("Failed to open file");
+        exit(EXIT_FAILURE);
+    }
+
+    int item_no, price, quantity;
+    char name[100];
+    *num_items = 0;
+    *items = NULL;
+
+    while (fscanf(file, "%d %s %d %d", &item_no, name, &price, &quantity) == 4) {
+        *items = realloc(*items, (*num_items + 1) * sizeof(item));
+        if (*items == NULL) {
+            perror("Failed to allocate memory");
+            exit(EXIT_FAILURE);
+        }
+        (*items)[*num_items].item_no = item_no;
+        strcpy((*items)[*num_items].name, name);
+        (*items)[*num_items].price = price;
+        (*items)[*num_items].quantity = quantity;
+        (*num_items)++;
+    }
+
+    fclose(file);
+}
+
+
+void find_item(item *items, int num_items, int item_no, int quantity) {
+    for (int i = 0; i < num_items; i++) {
+        if (items[i].item_no == item_no && quantity <= items[i].quantity) {
+            printf("Item No: %d\n", items[i].item_no);
+            printf("Name: %s\n", items[i].name);
+            printf("Price: %d\n", items[i].price);
+            printf("Quantity: %d\n", quantity);
+            return;
+        }
+    }
+    printf("Item with number %d not found or the quantity is more than in stock\n", item_no);
+}
+
+
+void displayCart(item *cart, int num_items, int item_no, int quantity) {
+    if (num_items == 0) {
+        printf("\nCart is empty!\n");
+        return;
+    }
+
+    printf("\nItems in your cart:\n");
+    for (int i = 0; i < num_items; i++) {
+        if(item_no==cart[i].item_no){
+            printf("  Item %d:\n", cart[i].item_no);
+            printf("  Name: %s\n", cart[i].name);
+            printf("  Price: %d\n", cart[i].price);
+            printf("  Quantity: %d\n", quantity);
+    }
+}
+}
+
+
+void printBill(struct item *cart, int numitems, int item_no, int quantity) {
+    if (numitems == 0) {
+        printf("\nCart is empty!\n");
+        return;
+    }
+
+    int total = 0;
+    printf("\nBill Summary:\n");
+    for (int i = 0; i < numitems; i++) {
+        if(item_no==cart[i].item_no){
+            int itemTotal = cart[i].price * quantity;
+            printf("Item %d:\n", cart[i].item_no);
+            printf("  Name: %s\n", cart[i].name);
+            printf("  Price: %d\n", cart[i].price);
+            printf("  Quantity: %d\n", quantity);
+            printf("  Item Total: %d\n", itemTotal);
+            total += itemTotal;
+        }
+    }
+    printf("Total Bill: %d\n", total);
+}
+
+
+
+void sign_up(struct User **users, int *numUsers) {
+
+    printf("\nEnter username: ");
+    scanf("%s", username);
+
+    printf("Enter password: ");
+    scanf("%s", password);
+
+    *users = (struct User *)realloc(*users, (*numUsers + 1) * sizeof(struct User));
+
+    strcpy((*users)[*numUsers].username, username);
+    strcpy((*users)[*numUsers].password, password);
+
+    (*numUsers)++;
+
+    printf("User signed up successfully!\n");
+}
+
+
+
+int log_in(struct User *users, int numUsers) {
+
+    printf("\nEnter username: ");
+    scanf("%s", username);
+
+    printf("Enter password: ");
+    scanf("%s", password);
+
+    for (int i = 0; i < numUsers; i++) {
+        if (strcmp(users[i].username, username) == 0 && strcmp(users[i].password, password) == 0) {
+            printf("Welcome %s !\n", username);
+            //return;
+            break;
+        }
+        printf("Invalid username or password Try again!\n");
+        break;
+    }
+
+}
+
+
+
+int admin_login() {
+
+    printf("\nEnter username: ");
+    scanf("%s", username);
+
+    printf("Enter password: ");
+    scanf("%s", password);
+
+    
+    if (strcmp(username, "admin") == 0 && strcmp(password, "a123") == 0) {
+        printf("Welcome Admin %s !\n", username);
+        return 1;
+        }
+    else{    
+        printf("Admin Username or Password did not match!\n");
+        return 0;
+        }
+    }
+
+
+
+
+int main(){
+    int choice;
+    int choice2;
+    int choice3;
+    int choice4;
+    
+    struct User *users = NULL;
+    struct item *cart = NULL;
+    int numUsers = 0;
+    int num_items = 0;
+    int item_no;
+    int quantity;
+    int c;
+    
+
+    main_menu:
+    printf("\n");
+    printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n");
+    printf("                                       WELCOME  TO  SHOP                                             \n");
+    printf("=====================================================================================================\n");
+    
+    printf("\n\n");
+    printf("1. ADMINISTRATOR\n");
+    printf("2. CUSTOMER\n");
+    printf("3. EXIT\n");
+    printf("\n");
+    printf("=====================================================================================================\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice);
+    
+    printf("\n\n");
+    switch (choice)
+    {
+    case 1:
+    c = admin_login();
+    if (c == 1) {
+    admin:
+    printf("*****************************************************************************************************\n");
+    printf("                                          ADMINISTRATOR                                              \n");
+    printf("-----------------------------------------------------------------------------------------------------\n");
+    printf("1. HOME\n");
+    printf("2. ADMIN DETAILS\n");
+    printf("3. SETTINGS\n");
+    printf("4. MAIN MENU\n");
+    printf("5. EXIT\n");
+    printf("-----------------------------------------------------------------------------------------------------\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice4);
+        switch(choice4)
+        {
+            case 1:
+            printf("*****************************************************************************************************\n");
+            printf("                                           HOME                                                      \n");
+            printf("-----------------------------------------------------------------------------------------------------\n");
+            break;
+
+            case 2:
+            printf("*****************************************************************************************************\n");
+            printf("                                        ADMIN DETAILS                                                \n");
+            printf("Admin Username : admin\n");
+            printf("Admin Password : a123\n");
+            printf("-----------------------------------------------------------------------------------------------------\n");
+            goto admin;
+            break;
+
+            case 3:
+            printf("*****************************************************************************************************\n");
+            printf("                                           SETTINGS                                                  \n");
+            printf("-----------------------------------------------------------------------------------------------------\n");
+            break;
+
+            case 4:
+            goto main_menu;
+            break;
+
+            case 5:
+            goto exit;
+            break;
+
+            default:
+            printf("INVALID NUMBER TYPED, TRY AGAIN\n");
+            goto admin;
+            break;
+
+        }
+    }
+    else {
+            printf("-----------------------------------------------------------------------------------------------------\n");
+            goto main_menu;
+    }
+        break;
+    case 2:
+    sign:
+    printf("\n 1.SIGN UP \n 2.LOG IN\n 3.MAIN MENU\n 4.EXIT\n");
+    printf("Enter your choice: ");
+    scanf("%d", &choice2);
+
+        switch (choice2)
+        {
+        case 1:
+        printf("*****************************************************************************************************\n");
+        printf("                                       CREATE AN ACCOUNT                                             \n");
+        sign_up(&users, &numUsers);
+        goto customer_options;
+        printf("-----------------------------------------------------------------------------------------------------\n");
+        break;
+        case 2:
+        printf("*****************************************************************************************************\n");
+        printf("                                 LOG IN TO AN EXISTING ACCOUNT                                       \n");
+        if (log_in(users, numUsers)) {
+            printf("Login successful!\n");
+            customer_options:
+            printf("*****************************************************************************************************\n");
+            printf("                                            CUSTOMER                                                 \n");
+            printf("-----------------------------------------------------------------------------------------------------\n\n");
+            printf("1. CUSTOMER PROFILE\n");
+            printf("2. BUY ITEMS\n");
+            printf("3. CUSTOMER CART\n");
+            printf("4. BILL\n");
+            printf("5. MAIN MENU\n");
+            printf("6. EXIT\n");
+            printf("-----------------------------------------------------------------------------------------------------\n");
+            printf("Enter your choice: ");
+            scanf("%d", &choice3);
+            switch (choice3)
+            {
+            case 1:
+                printf("*****************************************************************************************************\n");
+                printf("                                     CUSTOMER PROFILE                                                \n");
+                printf("Username: %s\n", username);
+                printf("Password: %s\n", password);
+                printf("-----------------------------------------------------------------------------------------------------\n");
+                goto customer_options;
+                break;
+            case 2:
+                
+                printf("*****************************************************************************************************\n");
+                printf("                                        BUY ITEMS                                                    \n");
+                printf("|Item no.|     |Product|     |Price|    |Quantity|\n");
+                printf("       |1|     |Frooti|      |15|       |30|\n");
+                printf("       |2|     |Grapes|      |5|        |20|\n");
+                printf("       |3|     |Chocolate|   |20|       |45|\n");
+                printf("       |4|     |Apple|       |10|       |25|\n");
+                printf("       |5|     |Guava|       |10|       |20|\n");
+                // item i1 = {1,"Frooti", 15 , 30};
+                // item i2 = {2,"Grapes", 5 , 20};
+                // item i3 = {3,"Chocolate", 5 , 45};
+                // item i4 = {4,"Apple", 10 , 25};
+                // item i5 = {5,"Guava", 10 , 20};
+          
+                read_items("Products.txt", &cart, &num_items);
+                
+                printf("Enter the item number: ");
+                scanf("%d", &item_no);
+
+                printf("Enter the quantity you want: ");
+                scanf("%d", &quantity);
+
+                find_item(cart, num_items, item_no, quantity);
+                
+                
+                printf("-----------------------------------------------------------------------------------------------------\n");
+                goto customer_options;
+                break;
+            case 3:
+                printf("*****************************************************************************************************\n");
+                printf("                                        CUSTOMER CART                                                \n");
+                displayCart(cart, num_items,item_no, quantity);
+                goto customer_options;
+                printf("-----------------------------------------------------------------------------------------------------\n");
+                break;
+            
+            case 4:
+                printf("*****************************************************************************************************\n");
+                printf("                                            BILL                                                     \n");
+                printBill(cart, num_items, item_no, quantity);
+                printf("\n");
+                printf("-----------------------------------------------------------------------------------------------------\n");
+                break;
+            case 5:
+                goto main_menu;
+                break;
+            case 6:
+                goto exit;
+                break;
+            default:
+                printf("INVALID NUMBER TYPED, TRY AGAIN\n");
+                goto customer_options;
+                break;
+            }
+        } else {
+            
+            printf("-----------------------------------------------------------------------------------------------------\n");
+            goto sign;
+        }
+        break;
+        
+        case 3:
+            goto main_menu;
+            break;
+
+        case 4:
+            goto exit;
+            break;
+        default:
+            printf("INVALID NUMBER TYPED, TRY AGAIN\n");
+            goto sign;
+            break;
+        }
+    break;
+
+    
+    case 3:
+    exit:
+    free(users);
+    printf("*****************************************************************************************************\n");
+    printf("                                              EXIT                                                   \n");
+    printf("-----------------------------------------------------------------------------------------------------\n");
+    return 0;
+
+    default:
+    printf("INVALID NUMBER TYPED, TRY AGAIN\n");
+    goto main_menu;
+        break;
+    }
+}
